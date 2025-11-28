@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>¡Una Sorpresa Especial! 🎉</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Librería de Confeti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Roboto:wght@300;400;700&family=Share+Tech+Mono&display=swap');
+
+    :root {
+      --color-primary: #667eea;
+      --color-secondary: #0099ff;
+      --color-accent: #00d4ff;
+      --color-error: #FF0000;
+      --font-code: 'Share Tech Mono', monospace;
+      --font-body: 'Roboto', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: black;
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      color: white;
+    }
+
+    .romantic-bg {
+      background: linear-gradient(-45deg, #667eea, #764ba2, #0099ff, #00d4ff);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+    }
+
+    @keyframes gradient {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    /* BOOT SCREEN */
+    #boot-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      z-index: 100;
+      padding: 20px;
+      font-family: var(--font-code);
+      color: var(--color-accent);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    
+    .terminal-line {
+      margin: 2px 0;
+      opacity: 0.9;
+      text-shadow: 0 0 5px var(--color-accent);
+    }
+
+    /* WELCOME SCREEN */
+    #welcome-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      transition: all 0.8s ease-out;
+    }
+
+    .gift-box {
+      font-size: 100px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s;
+    }
+
+    .shake-mild { animation: shake 0.5s; }
+    .shake-hard { animation: shake 0.5s infinite; color: var(--color-primary); }
+    .shake-error { animation: shake 0.3s; border-color: var(--color-error) !important; }
+    
+    .red-flash {
+      animation: flashRed 0.5s;
+    }
+    
+    @keyframes flashRed {
+      0%, 100% { background: rgba(0,0,0,0.95); }
+      50% { background: rgba(255,0,0,0.3); }
+    }
+    
+    @keyframes shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -2px) rotate(-1deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      30% { transform: translate(3px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 2px) rotate(-1deg); }
+      60% { transform: translate(-3px, 1px) rotate(0deg); }
+      70% { transform: translate(3px, 1px) rotate(-1deg); }
+      80% { transform: translate(-1px, -1px) rotate(1deg); }
+      90% { transform: translate(1px, 2px) rotate(0deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+
+    .glitch-effect {
+      animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+      color: var(--color-primary);
+      background: black;
+    }
+
+    @keyframes glitch-anim {
+      0% { transform: translate(0) }
+      20% { transform: translate(-2px, 2px) }
+      40% { transform: translate(-2px, -2px) }
+      60% { transform: translate(2px, 2px) }
+      80% { transform: translate(2px, -2px) }
+      100% { transform: translate(0) }
+    }
+
+    #password-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+      animation: fadeIn 0.5s;
+    }
+
+    .vault-input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid var(--color-accent);
+      color: white;
+      font-family: var(--font-code);
+      padding: 10px 15px;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 1.2rem;
+      outline: none;
+      width: 250px;
+      letter-spacing: 2px;
+      transition: border-color 0.3s;
+    }
+
+    .vault-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .vault-btn {
+      margin-top: 15px;
+      background: var(--color-primary);
+      color: white;
+      font-family: var(--font-body);
+      padding: 10px 25px;
+      border: 1px solid var(--color-primary);
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 20px;
+      transition: background 0.3s, transform 0.1s;
+    }
+
+    .vault-btn:hover { 
+      background: transparent;
+      border-color: var(--color-primary);
+      color: var(--color-primary); 
+      transform: scale(1.05);
+    }
+
+    /* MAIN CONTENT */
+    #main-content {
+      display: none; 
+      opacity: 0;
+      transition: opacity 2s ease-in;
+    }
+
+    .container {
+      text-align: center;
+      padding: 30px;
+      max-width: 800px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(3rem, 6vw, 5rem);
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .video-wrapper {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      margin: 30px 0;
+      background: black;
+    }
+    
+    iframe { width: 100%; height: 100%; }
+
+    #love-letter {
+      font-size: 1.25rem;
+      line-height: 1.8;
+      min-height: 100px;
+    }
+    
+    .cursor::after {
+      content: '|';
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink { 50% { opacity: 0; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .demo-badge {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(102, 126, 234, 0.9);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: bold;
+      z-index: 1000;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .info-box {
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid var(--color-accent);
+      border-radius: 15px;
+      padding: 20px;
+      margin: 30px 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .info-box h3 {
+      color: var(--color-accent);
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+
+    .info-box ul {
+      text-align: left;
+      list-style: none;
+      padding: 0;
+    }
+
+    .info-box li {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .info-box li:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Badge DEMO -->
+  <div class="demo-badge">
+    🎨 DEMO - CortezCyberTech
+  </div>
+
+  <!-- BOOT SCREEN -->
+  <div id="boot-screen"></div>
+
+  <!-- WELCOME SCREEN -->
+  <div id="welcome-screen">
+    <div id="gift-icon" class="gift-box" onclick="gestionarClics()">🎁</div>
+    
+    <p id="status-msg" class="text-white text-xl mt-6 font-light tracking-widest uppercase text-center px-4">
+      Sistema.Estado(Acceso: Bloqueado)
+    </p>
+    <p id="hint-msg" class="text-white text-xs mt-2 opacity-50 font-sans">(Toca el regalo para comenzar)</p>
+
+    <div id="password-container">
+      <p class="text-blue-400 font-sans text-lg mb-2 text-center">CÓDIGO DE ACCESO REQUERIDO</p>
+      <p class="text-sm opacity-70 mb-4 text-center text-cyan-300">(DEMO: Usa el código 2024)</p>
+
+      <input type="text" id="demo-password" class="vault-input" placeholder="CÓDIGO">
+      <button onclick="verificarPassword()" class="vault-btn">ACCEDER</button>
+      <p id="error-msg" class="text-red-500 font-sans text-xs mt-2 h-4"></p>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main-content">
+    <div class="container mx-auto px-4">
+      <h1>¡Felicitaciones!</h1>
+      <h2 class="text-3xl font-light mb-6">Has desbloqueado esta experiencia 🎉</h2>
+      
+      <p id="love-letter" class="mb-8 font-light"></p>
+
+      <!-- Info Box -->
+      <div class="info-box">
+        <h3>📋 Características de este Demo</h3>
+        <ul>
+          <li>✨ <strong>Animación de arranque</strong> tipo terminal profesional</li>
+          <li>🔒 <strong>Sistema de contraseña</strong> personalizable</li>
+          <li>🎬 <strong>Integración multimedia</strong> (videos, imágenes, audio)</li>
+          <li>🎨 <strong>Efectos visuales</strong> avanzados con CSS y JavaScript</li>
+          <li>🎉 <strong>Animaciones interactivas</strong> (confeti, transiciones)</li>
+          <li>📱 <strong>Diseño responsive</strong> para todos los dispositivos</li>
+          <li>⚙️ <strong>Totalmente personalizable</strong> según tus necesidades</li>
+        </ul>
+      </div>
+
+      <div class="video-wrapper">
+        <iframe 
+          src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+          frameborder="0"
+          allow="autoplay; fullscreen"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <div class="info-box" style="margin-top: 30px;">
+        <h3>💡 Ideal Para:</h3>
+        <ul>
+          <li>💍 Invitaciones de boda digitales</li>
+          <li>🎂 Felicitaciones de cumpleaños únicas</li>
+          <li>🎓 Anuncios de graduación</li>
+          <li>💼 Landing pages de eventos corporativos</li>
+          <li>🎉 Celebraciones de aniversario</li>
+          <li>🎁 Revelaciones de género</li>
+          <li>📢 Anuncios especiales</li>
+        </ul>
+      </div>
+
+      <button onclick="lanzarConfetti()" class="mt-6 px-8 py-3 bg-white text-blue-600 font-bold rounded-full shadow-lg hover:scale-110 transition transform">
+        🎉 ¡PROBAR CONFETI! 🎉
+      </button>
+
+      <div style="margin-top: 40px; padding: 30px; background: rgba(102, 126, 234, 0.2); border-radius: 15px; border: 2px solid var(--color-primary);">
+        <h3 style="font-size: 2em; margin-bottom: 15px;">¿Te gustó este demo?</h3>
+        <p style="font-size: 1.2em; margin-bottom: 20px;">Puedo crear una página personalizada única para tu ocasión especial</p>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
+          <a href="https://wa.me/50360613425?text=Hola,%20vi%20el%20demo%20de%20página%20personalizada%20y%20me%20interesa" target="_blank" style="background: #25D366; color: white; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 10px;">
+            📱 Contactar por WhatsApp
+          </a>
+          <a href="mailto:ciberseguridad.osvaldo@gmail.com" style="background: white; color: var(--color-primary); padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: bold;">
+            ✉️ Enviar Email
+          </a>
+        </div>
+        <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.8;">
+          <strong>CortezCyberTech</strong> - "Tu Escudo Digital Confiable"<br>
+          Precio: $80 - $150 (según complejidad)
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <audio id="bg-music" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
+  </audio>
+
+  <script>
+    const VALID_PASSWORD = '2024';
+
+    /* BOOT SEQUENCE */
+    const bootLines = [
+        "INICIALIZANDO_SISTEMA_DEMO...",
+        "CARGANDO_MÓDULOS_INTERACTIVOS...",
+        "ESTABLECIENDO_CONEXIÓN_VISUAL...",
+        "MODO_DEMOSTRACIÓN_ACTIVADO.",
+        "PREPARANDO_EXPERIENCIA_PERSONALIZADA...",
+        "CORTEZCYBERTECH_V1.0",
+        "SISTEMA_LISTO."
+    ];
+
+    window.onload = function() {
+        const bootScreen = document.getElementById('boot-screen');
+        let delay = 0;
+        
+        bootLines.forEach((line, index) => {
+            delay += Math.random() * 400 + 200; 
+            setTimeout(() => {
+                const p = document.createElement('p');
+                p.classList.add('terminal-line');
+                p.innerText = "> " + line;
+                bootScreen.appendChild(p);
+                bootScreen.scrollTop = bootScreen.scrollHeight;
+                
+                if (index === bootLines.length - 1) {
+                    setTimeout(finalizarBoot, 1000);
+                }
+            }, delay);
+        });
+    };
+
+    function finalizarBoot() {
+        const bootScreen = document.getElementById('boot-screen');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        bootScreen.style.display = 'none';
+        welcomeScreen.style.display = 'flex';
+    }
+
+    /* GESTIÓN DE CLICS */
+    let clicCount = 0;
+    const giftIcon = document.getElementById('gift-icon');
+    const statusMsg = document.getElementById('status-msg');
+    const hintMsg = document.getElementById('hint-msg');
+    const passwordContainer = document.getElementById('password-container');
+
+    function gestionarClics() {
+      if (clicCount >= 3) return;
+      clicCount++;
+
+      if (clicCount === 1) {
+        giftIcon.classList.remove('bounce'); 
+        void giftIcon.offsetWidth; 
+        giftIcon.classList.add('shake-mild');
+        statusMsg.innerText = "Error 403: Acceso Denegado.";
+        statusMsg.style.fontFamily = "var(--font-code)";
+        
+      } else if (clicCount === 2) {
+        giftIcon.classList.remove('shake-mild');
+        void giftIcon.offsetWidth;
+        giftIcon.classList.add('shake-hard');
+        statusMsg.innerText = "¡ALERTA! CONTENIDO PROTEGIDO.";
+        statusMsg.style.color = "var(--color-primary)";
+        statusMsg.classList.add('font-bold');
+
+      } else if (clicCount === 3) {
+        mostrarPasswordInput();
+      }
+    }
+
+    function mostrarPasswordInput() {
+      giftIcon.style.cursor = "default";
+      giftIcon.classList.remove('shake-hard');
+      statusMsg.innerText = "AUTENTICACIÓN REQUERIDA";
+      statusMsg.style.color = "var(--color-accent)"; 
+      statusMsg.style.fontFamily = "var(--font-code)";
+      hintMsg.style.display = 'none';
+      passwordContainer.style.display = 'flex';
+    }
+
+    function verificarPassword() {
+      const input = document.getElementById('demo-password');
+      const errorMsg = document.getElementById('error-msg');
+      const welcomeScreen = document.getElementById('welcome-screen');
+      const val = input.value.trim();
+
+      if (val === VALID_PASSWORD) {
+        iniciarSecuenciaGlitch();
+      } else {
+        input.classList.add('shake-error');
+        welcomeScreen.classList.add('red-flash');
+        input.style.borderColor = "var(--color-error)";
+        errorMsg.innerText = "CÓDIGO INCORRECTO. INTENTA DE NUEVO.";
+        setTimeout(() => {
+          input.classList.remove('shake-error');
+          welcomeScreen.classList.remove('red-flash');
+          input.style.borderColor = "var(--color-accent)";
+          errorMsg.innerText = "";
+        }, 1000);
+      }
+    }
+
+    function iniciarSecuenciaGlitch() {
+        const welcomeScreen = document.getElementById('welcome-screen');
+        welcomeScreen.classList.add('glitch-effect');
+        document.getElementById('status-msg').innerText = "ACCESO CONCEDIDO...";
+        
+        setTimeout(() => {
+            abrirContenido();
+        }, 1500);
+    }
+
+    function abrirContenido() {
+      const welcomeScreen = document.getElementById('welcome-screen');
+      welcomeScreen.style.display = 'none';
+      welcomeScreen.classList.remove('glitch-effect');
+
+      document.body.classList.add('romantic-bg');
+      document.body.style.background = "";
+
+      const audio = document.getElementById('bg-music');
+      audio.volume = 0.3;
+      audio.play().catch(e => console.log("Audio play error:", e));
+
+      const mainContent = document.getElementById('main-content');
+      mainContent.style.display = 'block';
+      
+      setTimeout(() => {
+        mainContent.style.opacity = '1';
+        typeWriter();
+        lanzarConfetti();
+      }, 100);
+    }
+
+    /* MÁQUINA DE ESCRIBIR */
+    const textToType = "Este es un ejemplo de página web personalizada creada por CortezCyberTech. Incluye animaciones, efectos visuales, sistema de contraseña, integración multimedia y mucho más. Perfecto para hacer de tu ocasión especial algo verdaderamente memorable. ¡Cada página es única y diseñada según tus necesidades!";
+    const speed = 40; 
+    let i = 0;
+
+    function typeWriter() {
+      if (i < textToType.length) {
+        document.getElementById("love-letter").innerHTML += textToType.charAt(i);
+        i++;
+        setTimeout(typeWriter, speed);
+      } else {
+        document.getElementById("love-letter").classList.remove("cursor");
+      }
+    }
+
+    /* CONFETI */
+    function lanzarConfetti() {
+      var duration = 3 * 1000;
+      var animationEnd = Date.now() + duration;
+      var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+      var randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+      var interval = setInterval(function() {
+        var timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) return clearInterval(interval);
+        var particleCount = 50 * (timeLeft / duration);
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+      }, 250);
+    }
+  </script>
+</body>
+</html>
